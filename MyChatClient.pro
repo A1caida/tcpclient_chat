@@ -15,10 +15,8 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        json_worker.cpp \
         widget.cpp
 
-HEADERS  += widget.h \
-    json_worker.h
+HEADERS  += widget.h
 
 FORMS    += widget.ui

@@ -3,7 +3,14 @@
 
 #include <QWidget>
 #include <QTcpSocket>
-#include "json_worker.h"
+
+struct personal_msg
+{
+    int sender;
+    int reciever;
+    QString msg;
+    QString time;
+};
 
 namespace Ui {
 class Widget;
@@ -17,6 +24,7 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
+    //friend QDataStream & operator>> (QDataStream &stream, QString a);
     void exit();
 
 private slots:
@@ -33,10 +41,7 @@ signals:
 private:
     Ui::Widget *ui;
     QTcpSocket *m_socket;
-    int auth = 0;
-    json_worker json;
-
-
+    QString nick;
 };
 
 #endif // WIDGET_H
