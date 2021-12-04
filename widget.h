@@ -41,7 +41,7 @@ signals:
 private:
     Ui::Widget *ui;
     QTcpSocket *m_socket;
-    QString nick;
+    QString nick = "";
 };
 
 #endif // WIDGET_H

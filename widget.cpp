@@ -3,16 +3,6 @@
 #include <QtWidgets/QMessageBox>
 #include <QTime>
 
-/*QDataStream & operator>> (QDataStream &stream, QString a)
-{
-    while (!stream.atEnd())
-    {
-        a += QString(stream);
-    }
-
-    return stream;
-}*/
-
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
@@ -69,26 +59,25 @@ void Widget::on_pushButton_find_clicked()
 }
 
 
-void Widget::on_pushButton_Send_clicked()  //发送按钮
+void Widget::on_pushButton_Send_clicked()
 {
-    if (ui->textEdit->toPlainText()== QString()) //空消息检测
+    if (ui->textEdit->toPlainText()== QString())
     {
         QMessageBox msgb;
-        msgb.setText("不能发送空消息！");
+        msgb.setText("Нельзя отправить пустоту!");
         msgb.resize(60,40);
         msgb.exec();
         return;
     }
     ui->textBrowser->setTextColor(Qt::gray);
     ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
-    ui->textBrowser->append("From Client:  "+QTime::currentTime().toString());
+    ui->textBrowser->append(ui->username->text().toUtf8() + ":  "+QTime::currentTime().toString());
 
     ui->textBrowser->setTextColor(Qt::black);
     ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
     ui->textBrowser->append(ui->textEdit->toPlainText().toUtf8());
 
-
-    QByteArray msg = ui->textEdit->toPlainText().toUtf8();
+    QByteArray msg = nick.toUtf8() + "/" + ui->textEdit->toPlainText().toUtf8();
     msg.insert(0,"1");
     m_socket->write(msg);
     m_socket->flush();
@@ -146,7 +135,7 @@ void Widget::read_data()
 
                 ui->textBrowser->setTextColor(Qt::gray);
                 ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
-                ui->textBrowser->append("From Server:  "+QTime::currentTime().toString());
+                ui->textBrowser->append(nick+ ":  "+QTime::currentTime().toString());
 
                 ui->textBrowser->setTextColor(Qt::black);
                 ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
@@ -155,26 +144,34 @@ void Widget::read_data()
             };
             case 2:
             {
-                Data.remove(0,1);
+                Data.remove(0,1);                
                 QString str=QString(Data);
-                //int magic = 0;
+
 
                 while (!str.isEmpty())
                 {
-                    QString sender = str.mid(0,str.indexOf("/"));
-                    str.remove(0,str.indexOf("/")+1);
+                    QVector<int> size;
+                    for (int i = 0;i < 3;i++)
+                    {
+                        QString temp = str.mid(0,str.indexOf("/"));
+                        str.remove(0,str.indexOf("/")+1);
+                        size.push_back(temp.toInt());
+                    }
 
-                    QString time = str.mid(0,str.indexOf("/"));
-                    str.remove(0,str.indexOf("/")+1);
+                    QString sender = str.mid(0,size[0]);
+                    str.remove(0,size[0]);
+
+                    QString time = str.mid(0,size[1]);
+                    ui->textBrowser->setTextColor(Qt::gray);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
                     ui->textBrowser->append(sender+ ":  "+time);
+                    str.remove(0,size[1]);
 
-                    str.remove(0,str.indexOf("/")+1);
-                    QString msg = str.mid(0,str.indexOf("]"));
+                    QString msg = str.mid(0,size[2]);
                     ui->textBrowser->setTextColor(Qt::black);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
                     ui->textBrowser->append(msg);
-                    str.remove(0,str.indexOf("]")+1);
+                    str.remove(0,size[2]);
                 }
 
 
