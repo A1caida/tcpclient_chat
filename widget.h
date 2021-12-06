@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QTcpSocket>
+#include <QListWidgetItem>
+
 
 struct personal_msg
 {
@@ -35,6 +37,8 @@ private slots:
     void read_data();
 
     void on_pushButton_reg_clicked();
+
+    void on_listWidget_users_itemDoubleClicked(QListWidgetItem *item);
 
 signals:
     void success();

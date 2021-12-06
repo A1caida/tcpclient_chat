@@ -28,7 +28,7 @@ Widget::~Widget()
     delete ui;
 }
 
-void Widget::on_pushButton_Connect_clicked()    //连接按钮
+void Widget::on_pushButton_Connect_clicked()
 {
     m_socket->abort();
     m_socket->connectToHost("127.0.0.1",728);
@@ -54,10 +54,21 @@ void Widget::on_pushButton_find_clicked()
     m_socket->flush();
 
     nick = ui->user_pm->text().toUtf8();
-    ui->listWidget_users->addItem(ui->user_pm->text().toUtf8());
+
+    bool check = false;
+    for (int i = 0; i < ui->listWidget_users->count(); i++)
+    {
+        if (ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == nick)
+        {
+            check = true;
+            break;
+        }
+    }
+
+    if(!check)
+        ui->listWidget_users->addItem(ui->user_pm->text().toUtf8());
 
 }
-
 
 void Widget::on_pushButton_Send_clicked()
 {
@@ -108,9 +119,10 @@ void Widget::read_data()
                     msgBox.setText("Неправильный логин или пароль");
                     msgBox.resize(40,30);
                     msgBox.exec();
+                    exit();
 
                 }
-                else
+                else if(QString(Data[0]) == "1")
                 {
                     QMessageBox msgBox;
                     msgBox.setText("Добро пожаловать!");
@@ -126,6 +138,15 @@ void Widget::read_data()
                     ui->pushButton_Send->setEnabled(false);
                     ui->pushButton_Send->setEnabled(true);
                 }
+                else
+                {
+                    QMessageBox msgBox;
+                    msgBox.setText("Этот пользователь уже существует!");
+                    msgBox.resize(40,30);
+                    msgBox.exec();
+                    exit();
+                }
+
                 break;
             };
             case 1:
@@ -146,7 +167,7 @@ void Widget::read_data()
             {
                 Data.remove(0,1);                
                 QString str=QString(Data);
-
+                ui->textBrowser->clear();
 
                 while (!str.isEmpty())
                 {
@@ -180,6 +201,33 @@ void Widget::read_data()
 
                 break;
             };
+            case 3:
+            {
+                Data.remove(0,1);
+
+                bool check = false;
+                for (int i = 0; i < ui->listWidget_users->count(); i++)
+                {
+                    if (ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == QString(Data))
+                    {
+                        ui->listWidget_users->item(i)->setText(QString(Data)+"(Новое сообщение)");
+                        check = true;
+                        break;
+                    }
+                    else if(ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == QString(Data)+"(Новое сообщение)")
+                    {
+                        check = true;
+                        break;
+                    }
+                }
+
+                if(!check)
+                {
+                    ui->listWidget_users->addItem(QString(Data).toUtf8()+"(Новое сообщение)");
+                }
+
+
+            }
             default:
             {
 
@@ -194,9 +242,8 @@ void Widget::exit()
 {
     m_socket->write("3");
     ui->pushButton_Send->setEnabled(false);
-    ui->pushButton_Connect->setText("Соединять");
     QMessageBox msgBox;
-    msgBox.setText("Отключить!");
+    msgBox.setText("Связь потеряна.");// это кринж и костыль
     msgBox.resize(40,30);
     msgBox.exec();
 }
@@ -217,9 +264,19 @@ void Widget::on_pushButton_reg_clicked()
 
     QByteArray query = "4" + ui->username->text().toUtf8() + "+" + ui->password->text().toUtf8();
     m_socket->write(query);
+}
 
-    ui->pushButton_Connect->setEnabled(false);
-    ui->pushButton_Connect->setEnabled(false);
-    ui->pushButton_Send->setEnabled(false);
+void Widget::on_listWidget_users_itemDoubleClicked(QListWidgetItem *item)
+{
+    QString name =  item->text().toUtf8();
+    name = name.mid(0,name.indexOf("("));
+
+    item->setText(name);
+    QByteArray user = item->text().toUtf8();
+    user.insert(0,"2");
+    m_socket->write(user);
+    m_socket->flush();
+
+    nick = item->text().toUtf8();
 }
 
