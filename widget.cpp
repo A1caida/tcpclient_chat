@@ -97,10 +97,6 @@ void Widget::on_pushButton_Send_clicked()
 
 void Widget::read_data()
 {
-    /*QString test;
-    QDataStream datastream(m_socket);
-    datastream >> test;*/
-
     QByteArray Data = m_socket->readAll();
     QString a = QString(Data[0]);
     int ch = a.toInt();
@@ -151,8 +147,35 @@ void Widget::read_data()
             };
             case 1:
             {
-                Data.remove(0,1);
-                QString str=QString(Data);
+                Data.remove(0,2);
+                QString msg=QString(Data);//1/7A1caidamsg
+                QString username = msg.mid(1,msg.mid(0,1).toInt());
+                msg.remove(0,msg.mid(0,1).toInt()+1);
+
+                if(nick != username)//человек разговаривает с другим пользователем
+                {
+                    bool check = false;
+                    for (int i = 0; i < ui->listWidget_users->count(); i++)
+                    {
+                        if (ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == username)
+                        {
+                            ui->listWidget_users->item(i)->setText(username+"(Новое сообщение)");
+                            check = true;
+                            break;
+                        }
+                        else if(ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == username+"(Новое сообщение)")
+                        {
+                            check = true;
+                            break;
+                        }
+                    }
+
+                    if(!check)
+                    {
+                        ui->listWidget_users->addItem(username+"(Новое сообщение)");
+                    }
+                    break;
+                }
 
                 ui->textBrowser->setTextColor(Qt::gray);
                 ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
@@ -160,7 +183,7 @@ void Widget::read_data()
 
                 ui->textBrowser->setTextColor(Qt::black);
                 ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
-                ui->textBrowser->append(str);
+                ui->textBrowser->append(msg);
                 break;
             };
             case 2:
@@ -201,33 +224,6 @@ void Widget::read_data()
 
                 break;
             };
-            case 3:
-            {
-                Data.remove(0,1);
-
-                bool check = false;
-                for (int i = 0; i < ui->listWidget_users->count(); i++)
-                {
-                    if (ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == QString(Data))
-                    {
-                        ui->listWidget_users->item(i)->setText(QString(Data)+"(Новое сообщение)");
-                        check = true;
-                        break;
-                    }
-                    else if(ui->listWidget_users->item(i)->data(Qt::DisplayRole).toString() == QString(Data)+"(Новое сообщение)")
-                    {
-                        check = true;
-                        break;
-                    }
-                }
-
-                if(!check)
-                {
-                    ui->listWidget_users->addItem(QString(Data).toUtf8()+"(Новое сообщение)");
-                }
-
-
-            }
             default:
             {
 
