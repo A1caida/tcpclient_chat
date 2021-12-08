@@ -12,14 +12,12 @@ Widget::Widget(QWidget *parent) :
     m_socket = new QTcpSocket;
 
     QObject::connect(m_socket,&QTcpSocket::readyRead,this,&Widget::read_data);
-    //QObject::connect(this,&Widget::success,this,&Widget::log);
 
-    ui->pushButton_Send->setShortcut(QKeySequence(tr("ctrl+return")));
+    ui->pushButton_Send->setShortcut(QKeySequence(tr("Enter")));//dunno it doesn't work
 
     ui->username->setText("A1caida");
     ui->password->setText("qwe123");
     ui->pushButton_Send->setEnabled(false);
-
 }
 
 Widget::~Widget()
@@ -27,6 +25,19 @@ Widget::~Widget()
     delete m_socket;
     delete ui;
 }
+
+
+void Widget::display_msg(QString user, QString msg)
+{
+    ui->textBrowser->setTextColor(Qt::gray);
+    ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
+    ui->textBrowser->append(user + ":  "+QTime::currentTime().toString());
+
+    ui->textBrowser->setTextColor(Qt::black);
+    ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
+    ui->textBrowser->append(msg);
+}
+
 
 void Widget::on_pushButton_Connect_clicked()
 {
@@ -42,7 +53,11 @@ void Widget::on_pushButton_Connect_clicked()
         return;
     }
 
-    QByteArray query = "0" + ui->username->text().toUtf8() + "+" + ui->password->text().toUtf8();
+    QCryptographicHash *hash = new QCryptographicHash(QCryptographicHash::Keccak_512);
+    hash->addData(ui->password->text().toUtf8());
+    qDebug() << hash->result().toBase64();
+
+    QByteArray query = "0" + ui->username->text().toUtf8() + "+" +hash->result().toBase64();
     m_socket->write(query);
 }
 
@@ -80,13 +95,8 @@ void Widget::on_pushButton_Send_clicked()
         msgb.exec();
         return;
     }
-    ui->textBrowser->setTextColor(Qt::gray);
-    ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
-    ui->textBrowser->append(ui->username->text().toUtf8() + ":  "+QTime::currentTime().toString());
 
-    ui->textBrowser->setTextColor(Qt::black);
-    ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
-    ui->textBrowser->append(ui->textEdit->toPlainText().toUtf8());
+    display_msg(ui->username->text().toUtf8(),ui->textEdit->toPlainText().toUtf8());
 
     QByteArray msg = nick.toUtf8() + "/" + ui->textEdit->toPlainText().toUtf8();
     msg.insert(0,"1");
@@ -102,7 +112,6 @@ void Widget::read_data()
     int ch = a.toInt();
     if (!Data.isEmpty())
     {
-        //QString str = ui->textBrowser->toPlainText();
         switch (ch)
         {
             case 0:
@@ -133,6 +142,7 @@ void Widget::read_data()
                     ui->pushButton_reg->setEnabled(false);
                     ui->pushButton_Send->setEnabled(false);
                     ui->pushButton_Send->setEnabled(true);
+                    ui->pushButton_find->setEnabled(true);
                 }
                 else
                 {
@@ -148,7 +158,7 @@ void Widget::read_data()
             case 1:
             {
                 Data.remove(0,2);
-                QString msg=QString(Data);//1/7A1caidamsg
+                QString msg=QString(Data);
                 QString username = msg.mid(1,msg.mid(0,1).toInt());
                 msg.remove(0,msg.mid(0,1).toInt()+1);
 
@@ -177,13 +187,8 @@ void Widget::read_data()
                     break;
                 }
 
-                ui->textBrowser->setTextColor(Qt::gray);
-                ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
-                ui->textBrowser->append(nick+ ":  "+QTime::currentTime().toString());
+                display_msg(nick,msg);
 
-                ui->textBrowser->setTextColor(Qt::black);
-                ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
-                ui->textBrowser->append(msg);
                 break;
             };
             case 2:
@@ -206,16 +211,19 @@ void Widget::read_data()
                     str.remove(0,size[0]);
 
                     QString time = str.mid(0,size[1]);
+                    str.remove(0,size[1]);
+                    QString msg = str.mid(0,size[2]);
+                    str.remove(0,size[2]);
                     ui->textBrowser->setTextColor(Qt::gray);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
                     ui->textBrowser->append(sender+ ":  "+time);
-                    str.remove(0,size[1]);
 
-                    QString msg = str.mid(0,size[2]);
+
+
                     ui->textBrowser->setTextColor(Qt::black);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
                     ui->textBrowser->append(msg);
-                    str.remove(0,size[2]);
+
                 }
 
 
@@ -258,7 +266,11 @@ void Widget::on_pushButton_reg_clicked()
         return;
     }
 
-    QByteArray query = "4" + ui->username->text().toUtf8() + "+" + ui->password->text().toUtf8();
+    QCryptographicHash *hash = new QCryptographicHash(QCryptographicHash::Keccak_512);
+    hash->addData(ui->password->text().toUtf8());
+    qDebug() << hash->result().toBase64();
+
+    QByteArray query = "4" + ui->username->text().toUtf8() + "+" + hash->result().toBase64();
     m_socket->write(query);
 }
 

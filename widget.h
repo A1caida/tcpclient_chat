@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QTcpSocket>
 #include <QListWidgetItem>
-
+#include <QCryptographicHash>
 
 struct personal_msg
 {
@@ -25,18 +25,15 @@ class Widget : public QWidget
 public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
-
-    //friend QDataStream & operator>> (QDataStream &stream, QString a);
     void exit();
 
 private slots:
     void on_pushButton_Connect_clicked();
     void on_pushButton_Send_clicked();
     void on_pushButton_find_clicked();
+    void on_pushButton_reg_clicked();
 
     void read_data();
-
-    void on_pushButton_reg_clicked();
 
     void on_listWidget_users_itemDoubleClicked(QListWidgetItem *item);
 
@@ -46,6 +43,8 @@ private:
     Ui::Widget *ui;
     QTcpSocket *m_socket;
     QString nick = "";
+
+    void display_msg(QString user, QString msg);
 };
 
 #endif // WIDGET_H
