@@ -38,7 +38,6 @@ void Widget::display_msg(QString user, QString msg)
     ui->textBrowser->append(msg);
 }
 
-
 void Widget::on_pushButton_Connect_clicked()
 {
     m_socket->abort();
@@ -160,7 +159,7 @@ void Widget::read_data()
                 Data.remove(0,2);
                 QString msg=QString(Data);
                 QString username = msg.mid(1,msg.mid(0,1).toInt());
-                msg.remove(0,msg.mid(0,1).toInt()+1);
+                msg.remove(0,msg.mid(0,1).toInt()+1);                                   
 
                 if(nick != username)//человек разговаривает с другим пользователем
                 {
@@ -209,29 +208,31 @@ void Widget::read_data()
 
                     QString sender = str.mid(0,size[0]);
                     str.remove(0,size[0]);
-
                     QString time = str.mid(0,size[1]);
                     str.remove(0,size[1]);
                     QString msg = str.mid(0,size[2]);
                     str.remove(0,size[2]);
+
                     ui->textBrowser->setTextColor(Qt::gray);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",10));
                     ui->textBrowser->append(sender+ ":  "+time);
-
-
 
                     ui->textBrowser->setTextColor(Qt::black);
                     ui->textBrowser->setCurrentFont(QFont("Times New Roman",16));
                     ui->textBrowser->append(msg);
 
                 }
-
-
-                qDebug() << Data;
-
-
                 break;
             };
+            case 5:
+            {
+                Data.remove(0,1);
+                QString str=QString(Data);
+                QMessageBox msgBox;
+                msgBox.setText(str);
+                msgBox.resize(40,30);
+                msgBox.exec();
+            }
             default:
             {
 
