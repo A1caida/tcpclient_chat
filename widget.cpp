@@ -41,7 +41,7 @@ void Widget::display_msg(QString user, QString msg)
 void Widget::on_pushButton_Connect_clicked()
 {
     m_socket->abort();
-    m_socket->connectToHost("127.0.0.1",728);
+    m_socket->connectToHost("127.0.0.1",7272);
 
     if (!m_socket->waitForConnected())
     {
@@ -54,7 +54,6 @@ void Widget::on_pushButton_Connect_clicked()
 
     QCryptographicHash *hash = new QCryptographicHash(QCryptographicHash::Keccak_512);
     hash->addData(ui->password->text().toUtf8());
-    qDebug() << hash->result().toBase64();
 
     QByteArray query = "0" + ui->username->text().toUtf8() + "+" +hash->result().toBase64();
     m_socket->write(query);
@@ -256,7 +255,7 @@ void Widget::exit()
 void Widget::on_pushButton_reg_clicked()
 {
     m_socket->abort();
-    m_socket->connectToHost("127.0.0.1",728);
+    m_socket->connectToHost("127.0.0.1",7272);
 
     if (!m_socket->waitForConnected())
     {
