@@ -45,6 +45,7 @@ private:
     QString nick = "";
 
     void display_msg(QString user, QString msg);
+    void check_con();
 };
 
 #endif // WIDGET_H

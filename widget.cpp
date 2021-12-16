@@ -38,19 +38,33 @@ void Widget::display_msg(QString user, QString msg)
     ui->textBrowser->append(msg);
 }
 
+void Widget::check_con()
+{
+    if (!m_socket->waitForConnected())
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Ошибка!");
+        msgBox.setText("Время соединения истекло!");
+        msgBox.resize(40,30);
+        msgBox.exec();
+        ui->username->setEnabled(true);
+        ui->password->setText("");
+        ui->password->setEnabled(true);
+
+        ui->pushButton_Connect->setEnabled(true);
+        ui->pushButton_reg->setEnabled(true);
+        ui->pushButton_Send->setEnabled(false);
+        ui->pushButton_find->setEnabled(false);
+        return;
+    }
+}
+
 void Widget::on_pushButton_Connect_clicked()
 {
     m_socket->abort();
     m_socket->connectToHost("127.0.0.1",7272);
 
-    if (!m_socket->waitForConnected())
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Время соединения истекло!");
-        msgBox.resize(40,30);
-        msgBox.exec();
-        return;
-    }
+    check_con();
 
     QCryptographicHash *hash = new QCryptographicHash(QCryptographicHash::Keccak_512);
     hash->addData(ui->password->text().toUtf8());
@@ -61,6 +75,8 @@ void Widget::on_pushButton_Connect_clicked()
 
 void Widget::on_pushButton_find_clicked()
 {
+    check_con();
+
     QByteArray user = ui->user_pm->text().toUtf8();
     user.insert(0,"2");
     m_socket->write(user);
@@ -88,6 +104,7 @@ void Widget::on_pushButton_Send_clicked()
     if (ui->textEdit->toPlainText()== QString())
     {
         QMessageBox msgb;
+        msgb.setWindowTitle("Ошибка!");
         msgb.setText("Нельзя отправить пустоту!");
         msgb.resize(60,40);
         msgb.exec();
@@ -95,6 +112,8 @@ void Widget::on_pushButton_Send_clicked()
     }
 
     display_msg(ui->username->text().toUtf8(),ui->textEdit->toPlainText().toUtf8());
+
+    check_con();
 
     QByteArray msg = nick.toUtf8() + "/" + ui->textEdit->toPlainText().toUtf8();
     msg.insert(0,"1");
@@ -119,6 +138,7 @@ void Widget::read_data()
                 if(QString(Data[0]) == "0")
                 {
                     QMessageBox msgBox;
+                    msgBox.setWindowTitle("Ошибка!");
                     msgBox.setText("Неправильный логин или пароль");
                     msgBox.resize(40,30);
                     msgBox.exec();
@@ -128,6 +148,7 @@ void Widget::read_data()
                 else if(QString(Data[0]) == "1")
                 {
                     QMessageBox msgBox;
+                    msgBox.setWindowTitle("Успешный вход!");
                     msgBox.setText("Добро пожаловать!");
                     msgBox.resize(40,30);
                     msgBox.exec();
@@ -145,6 +166,7 @@ void Widget::read_data()
                 else
                 {
                     QMessageBox msgBox;
+                    msgBox.setWindowTitle("Ошибка!");
                     msgBox.setText("Этот пользователь уже существует!");
                     msgBox.resize(40,30);
                     msgBox.exec();
@@ -158,7 +180,7 @@ void Widget::read_data()
                 Data.remove(0,2);
                 QString msg=QString(Data);
                 QString username = msg.mid(1,msg.mid(0,1).toInt());
-                msg.remove(0,msg.mid(0,1).toInt()+1);                                   
+                msg.remove(0,msg.mid(0,1).toInt()+1);
 
                 if(nick != username)//человек разговаривает с другим пользователем
                 {
@@ -191,7 +213,7 @@ void Widget::read_data()
             };
             case 2:
             {
-                Data.remove(0,1);                
+                Data.remove(0,1);
                 QString str=QString(Data);
                 ui->textBrowser->clear();
 
@@ -247,6 +269,7 @@ void Widget::exit()
     m_socket->write("3");
     ui->pushButton_Send->setEnabled(false);
     QMessageBox msgBox;
+    msgBox.setWindowTitle("Ошибка!");
     msgBox.setText("Связь потеряна.");// это кринж и костыль
     msgBox.resize(40,30);
     msgBox.exec();
@@ -257,14 +280,7 @@ void Widget::on_pushButton_reg_clicked()
     m_socket->abort();
     m_socket->connectToHost("127.0.0.1",7272);
 
-    if (!m_socket->waitForConnected())
-    {
-        QMessageBox msgBox;
-        msgBox.setText("Время соединения истекло!");
-        msgBox.resize(40,30);
-        msgBox.exec();
-        return;
-    }
+    check_con();
 
     QCryptographicHash *hash = new QCryptographicHash(QCryptographicHash::Keccak_512);
     hash->addData(ui->password->text().toUtf8());
@@ -287,4 +303,3 @@ void Widget::on_listWidget_users_itemDoubleClicked(QListWidgetItem *item)
 
     nick = item->text().toUtf8();
 }
-

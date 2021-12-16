@@ -20,6 +20,7 @@
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QTextBrowser>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -30,10 +31,9 @@ public:
     QWidget *layoutWidget;
     QGridLayout *gridLayout;
     QPushButton *pushButton_Connect;
+    QPushButton *pushButton_reg;
     QPushButton *pushButton_find;
-    QListWidget *listWidget_users;
-    QLineEdit *user_pm;
-    QTextEdit *textEdit;
+    QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_3;
     QHBoxLayout *horizontalLayout;
     QLabel *label_2;
@@ -42,9 +42,11 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_3;
     QLineEdit *password;
-    QTextBrowser *textBrowser;
-    QPushButton *pushButton_reg;
+    QLineEdit *user_pm;
+    QTextEdit *textEdit;
+    QListWidget *listWidget_users;
     QPushButton *pushButton_Send;
+    QTextBrowser *textBrowser;
 
     void setupUi(QWidget *Widget)
     {
@@ -64,25 +66,21 @@ public:
 
         gridLayout->addWidget(pushButton_Connect, 1, 0, 1, 1);
 
+        pushButton_reg = new QPushButton(layoutWidget);
+        pushButton_reg->setObjectName(QString::fromUtf8("pushButton_reg"));
+
+        gridLayout->addWidget(pushButton_reg, 1, 1, 1, 1);
+
         pushButton_find = new QPushButton(layoutWidget);
         pushButton_find->setObjectName(QString::fromUtf8("pushButton_find"));
 
         gridLayout->addWidget(pushButton_find, 1, 2, 1, 1);
 
-        listWidget_users = new QListWidget(layoutWidget);
-        listWidget_users->setObjectName(QString::fromUtf8("listWidget_users"));
+        verticalLayout = new QVBoxLayout();
+        verticalLayout->setSpacing(6);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
 
-        gridLayout->addWidget(listWidget_users, 2, 2, 3, 1);
-
-        user_pm = new QLineEdit(layoutWidget);
-        user_pm->setObjectName(QString::fromUtf8("user_pm"));
-
-        gridLayout->addWidget(user_pm, 0, 2, 1, 1);
-
-        textEdit = new QTextEdit(layoutWidget);
-        textEdit->setObjectName(QString::fromUtf8("textEdit"));
-
-        gridLayout->addWidget(textEdit, 4, 0, 1, 2);
+        gridLayout->addLayout(verticalLayout, 3, 0, 1, 1);
 
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setSpacing(6);
@@ -128,20 +126,30 @@ public:
 
         gridLayout->addLayout(horizontalLayout_3, 0, 0, 1, 2);
 
-        textBrowser = new QTextBrowser(layoutWidget);
-        textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
+        user_pm = new QLineEdit(layoutWidget);
+        user_pm->setObjectName(QString::fromUtf8("user_pm"));
 
-        gridLayout->addWidget(textBrowser, 2, 0, 1, 2);
+        gridLayout->addWidget(user_pm, 0, 2, 1, 1);
 
-        pushButton_reg = new QPushButton(layoutWidget);
-        pushButton_reg->setObjectName(QString::fromUtf8("pushButton_reg"));
+        textEdit = new QTextEdit(layoutWidget);
+        textEdit->setObjectName(QString::fromUtf8("textEdit"));
 
-        gridLayout->addWidget(pushButton_reg, 1, 1, 1, 1);
+        gridLayout->addWidget(textEdit, 5, 0, 1, 2);
+
+        listWidget_users = new QListWidget(layoutWidget);
+        listWidget_users->setObjectName(QString::fromUtf8("listWidget_users"));
+
+        gridLayout->addWidget(listWidget_users, 2, 2, 4, 1);
 
         pushButton_Send = new QPushButton(layoutWidget);
         pushButton_Send->setObjectName(QString::fromUtf8("pushButton_Send"));
 
-        gridLayout->addWidget(pushButton_Send, 3, 0, 1, 2);
+        gridLayout->addWidget(pushButton_Send, 4, 0, 1, 2);
+
+        textBrowser = new QTextBrowser(layoutWidget);
+        textBrowser->setObjectName(QString::fromUtf8("textBrowser"));
+
+        gridLayout->addWidget(textBrowser, 2, 0, 1, 2);
 
 
         retranslateUi(Widget);
@@ -151,12 +159,12 @@ public:
 
     void retranslateUi(QWidget *Widget)
     {
-        Widget->setWindowTitle(QCoreApplication::translate("Widget", "Widget", nullptr));
+        Widget->setWindowTitle(QCoreApplication::translate("Widget", "MoRgana client", nullptr));
         pushButton_Connect->setText(QCoreApplication::translate("Widget", "\320\222\320\276\320\271\321\202\320\270", nullptr));
+        pushButton_reg->setText(QCoreApplication::translate("Widget", "\320\240\320\265\320\263\320\270\321\201\321\202\321\200\320\260\321\206\320\270\321\217", nullptr));
         pushButton_find->setText(QCoreApplication::translate("Widget", "\320\235\320\260\320\271\321\202\320\270", nullptr));
         label_2->setText(QCoreApplication::translate("Widget", "\320\233\320\276\320\263\320\270\320\275", nullptr));
         label_3->setText(QCoreApplication::translate("Widget", "\320\237\320\260\321\200\320\276\320\273\321\214", nullptr));
-        pushButton_reg->setText(QCoreApplication::translate("Widget", "\320\240\320\265\320\263\320\270\321\201\321\202\321\200\320\260\321\206\320\270\321\217", nullptr));
         pushButton_Send->setText(QCoreApplication::translate("Widget", "\320\236\321\202\320\277\321\200\320\260\320\262\320\270\321\202\321\214", nullptr));
     } // retranslateUi
 
